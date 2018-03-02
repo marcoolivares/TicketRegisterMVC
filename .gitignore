@@ -1,5 +1,3 @@
 *.mf
-build/
-dist/
-nbproject/
+*.class
 *.xml
