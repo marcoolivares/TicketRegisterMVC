@@ -13,6 +13,11 @@ public class TicketController
     private TicketModel ticketModel;
     private TicketView ticketView;
     
+    /**
+     * Creates a TicketController object.
+     * @param ticketModel is the TicketModel object
+     * @param ticketView is the TicketView
+     */
     public TicketController(TicketModel ticketModel, TicketView ticketView)
     {
         this.ticketModel = ticketModel;
@@ -20,6 +25,9 @@ public class TicketController
         attachHandlers();
     }
     
+    /**
+     * Void method, which set the actions for the buttons
+     */
     public void attachHandlers()
     {
         ticketView.getBtn1().setOnAction(new EventHandler<ActionEvent>() {
@@ -100,6 +108,10 @@ public class TicketController
         } );
         
     }
+    
+    /**
+     * Void method which send all the information to the view in order to show it on screen.
+     */
     public void showInformation()
     {
         ticketView.getNumberTF().setText(""+currentTicket);
