@@ -15,30 +15,35 @@ public class TicketModel
 {
     private ArrayList<Ticket> ticketList = new ArrayList<>();
     private static int ticketnumber = 1;
+    /**
+     * Receives 10 strings which are the values of the ticket, creates a new Ticket object and
+     * finally add the created ticket to the ArrayList.
+     * The default value for the "paid" variable is false
+     * @param a is the license number
+     * @param b is the state
+     * @param c is the permit number
+     * @param d is the model
+     * @param e is the color
+     * @param f is the reason
+     * @param g is the date
+     * @param h is the time
+     * @param i is the location 
+     * @param j is the name of the person who issued the ticket
+     */
     public void createTicket(String a, String b, String c, String d, String e, String f, String g, String h, String i, String j)
     {
         Ticket t = new Ticket();
         t.setNumber(ticketnumber);
         ticketnumber++;
-        //license number
         t.setLicense(a);
-        //state
         t.setState(b);
-        //permit number
         t.setPermitnumber(c);
-        //vehicle model
         t.setModel(d);
-        //color
         t.setColor(e);
-        //reason
         t.setReason(f);
-        //date
         t.setDate(g);
-        //time
         t.setTime(h);
-        //location
         t.setLocation(i);
-        //issued by
         t.setIssuedby(j);
         t.setPaymentinfo("PAYMENTS\n"
                 + "Payments can be made at the following office:\n"
@@ -55,22 +60,15 @@ public class TicketModel
                 + "For More Information on parking citations please visit:\n"
                 + "www.tsc.edu/parking\n");
         t.setPaid(false);
-        //adding the created object to the arraylist
         ticketList.add(t);
     }
     
-    public int getCurrentTicketNumber(int currentTicket)
-    {
-        for(Ticket ticket : ticketList)
-        {
-            if(ticket.getNumber() == currentTicket)
-            {
-                return ticket.getNumber();
-            }
-        }
-        return 0;
-    }
-    
+    /**
+     * Returns the license number of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its license number
+     * @return 
+     */
     public String getCurrentTicketLicenseNumber(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -86,6 +84,12 @@ public class TicketModel
         return "";
     }
     
+    /**
+     * Returns the state of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its state
+     * @return 
+     */
     public String getCurrentState(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -101,6 +105,12 @@ public class TicketModel
         return "";
     }   
     
+    /**
+     * Returns the permit number of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its permit number
+     * @return 
+     */
     public String getCurrentPermitNumber(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -116,6 +126,12 @@ public class TicketModel
         return "";
     }   
     
+    /**
+     * Returns the vehicle model of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its vehicle model
+     * @return 
+     */
     public String getCurrentModel(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -131,6 +147,12 @@ public class TicketModel
         return "";
     }
     
+    /**
+     * Returns the vehicle color of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its vehicle color
+     * @return 
+     */
     public String getCurrentColor(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -144,7 +166,14 @@ public class TicketModel
             }
         }
         return "";
-    }   
+    }  
+    
+    /**
+     * Returns the reason of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its reason
+     * @return 
+     */
     public String getCurrentReason(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -158,7 +187,14 @@ public class TicketModel
             }
         }
         return "";
-    }   
+    }  
+    
+    /**
+     * Returns the date of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its date
+     * @return 
+     */
     public String getCurrentDate(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -173,6 +209,13 @@ public class TicketModel
         }
         return "";
     }   
+    
+    /**
+     * Returns the time of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its time
+     * @return 
+     */
     public String getCurrentTime(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -186,7 +229,14 @@ public class TicketModel
             }
         }
         return "";
-    }   
+    } 
+    
+    /**
+     * Returns the location of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its location
+     * @return 
+     */
     public String getCurrentLocation(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -201,6 +251,13 @@ public class TicketModel
         }
         return "";
     }   
+    
+    /**
+     * Returns the name of the person who issued the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its issued name
+     * @return 
+     */
     public String getCurrentIssuedBy(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -215,6 +272,11 @@ public class TicketModel
         }
         return "";
     }   
+    
+    /**
+     * 
+     * @return a String with all the payment information
+     */
     public String getPaymentInformation()
     {
         return "PAYMENTS\n"
@@ -233,6 +295,13 @@ public class TicketModel
                 + "www.tsc.edu/parking\n";
     }
     
+    /**
+     * Returns the paid state of the current ticket.
+     * if the value of the boolean variable is false, the method will return a "paid" string, if not
+     * it will return a "unpaid" string
+     * @param currentTicket is the number of the ticket which system needs to get its paid state
+     * @return 
+     */
     public String getCurrentPaidStatus(int currentTicket)
     {
         for(Ticket ticket : ticketList)
@@ -247,6 +316,11 @@ public class TicketModel
         }
         return "";
     }
+    
+    /**
+     * This method will change the value of the boolean variable to true is the current value is false, or viceversa
+     * @param currentTicket is the name of the current ticket
+     */
     public void changePaidStatus(int currentTicket)
     {
         for (int i = 0; i < ticketList.size(); i++) 
@@ -261,6 +335,11 @@ public class TicketModel
 
         }
     }
+    
+    /**
+     * 
+     * @return the ArrayList with all the created tickets.
+     */
     public ArrayList<Ticket> getTicketList()
     {
         return ticketList;

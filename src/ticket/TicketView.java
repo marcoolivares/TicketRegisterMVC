@@ -16,7 +16,9 @@ import javafx.scene.layout.VBox;
 public class TicketView extends GridPane
 {    
     private int currentTicket = 0;
-    //Creating the entry or display grid pane elements
+    /**
+     * Creating the entry or display grid pane elements (Labels and TextAreas)
+     */
     private Label numberLabel = new Label("Ticket number");
     private TextField numberTF = new TextField();
     private Label licenseLabel = new Label("License number   ");
@@ -39,7 +41,9 @@ public class TicketView extends GridPane
     private Label issuedLabel = new Label("Issued by");
     private TextField issuedTF = new TextField();
     
-    //for the allowed options
+    /**
+     * Creating the buttons for the allowed options
+     */
     private Button btn1 = new Button();
     private Button btn2 = new Button();
     private Button btn3 = new Button();
@@ -410,7 +414,6 @@ public class TicketView extends GridPane
     public ComboBox getCurrentReason()
     {
         return comboBox;
-        //return comboBox.getValue().toString();
     }
 
     public void setCurrentReason(String reason)
