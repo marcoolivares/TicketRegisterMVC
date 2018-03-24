@@ -4,18 +4,13 @@
  * and open the template in the editor.
  */
 package ticket;
-
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -32,7 +27,7 @@ public class TicketModel
     {
         //number, license, state, permitnumber, model, color, reason, date, time, location, issuedby, paid
         try(
-            FileReader reader = new FileReader("hello.txt")
+            FileReader reader = new FileReader("tickets.dat")
         ){
             int charRead = -1;
             int counter = 0;
@@ -40,93 +35,96 @@ public class TicketModel
             Ticket tick = new Ticket();
             while ((charRead = reader.read()) != -1) 
             {
-                info += (char) charRead;
                 if(charRead == 10)
                 {
-                    System.out.println("Se encontró salto de linea");
                     counter++;
-                    if(counter == 2)
-                    {
-                        System.out.println("License info: "+info);
-                        tick.setLicense(info);
+                    if(counter == 1)
                         info = "";
-                    }
                     else
                     {
-                        if(counter == 3)
+                        if(counter == 2)
                         {
-                            tick.setState(info);
+                            tick.setLicense(info);
                             info = "";
                         }
                         else
                         {
-                            if(counter == 4)
+                            if(counter == 3)
                             {
-                                tick.setPermitnumber(info);
+                                tick.setState(info);
                                 info = "";
                             }
                             else
                             {
-                                if(counter == 5)
+                                if(counter == 4)
                                 {
-                                    tick.setModel(info);
+                                    tick.setPermitnumber(info);
                                     info = "";
                                 }
                                 else
                                 {
-                                    if(counter == 6)
+                                    if(counter == 5)
                                     {
-                                        tick.setColor(info);
+                                        tick.setModel(info);
                                         info = "";
                                     }
                                     else
                                     {
-                                        if(counter == 7)
+                                        if(counter == 6)
                                         {
-                                            tick.setReason(info);
+                                            tick.setColor(info);
                                             info = "";
                                         }
                                         else
                                         {
-                                            if(counter == 8)
+                                            if(counter == 7)
                                             {
-                                                tick.setDate(info);
+                                                tick.setReason(info.substring(1, info.length()-1));
                                                 info = "";
                                             }
                                             else
                                             {
-                                                if(counter == 9)
+                                                if(counter == 8)
                                                 {
-                                                    tick.setTime(info);
+                                                    tick.setDate(info);
                                                     info = "";
                                                 }
                                                 else
                                                 {
-                                                    if(counter == 10)
+                                                    if(counter == 9)
                                                     {
-                                                        tick.setLocation(info);
+                                                        tick.setTime(info);
                                                         info = "";
                                                     }
                                                     else
                                                     {
-                                                        if(counter == 11)
+                                                        if(counter == 10)
                                                         {
-                                                            tick.setIssuedby(info);
+                                                            tick.setLocation(info);
                                                             info = "";
                                                         }
                                                         else
-                                                        {    
-                                                            if(counter == 12)
+                                                        {
+                                                            if(counter == 11)
                                                             {
-                                                                counter = 0;
-                                                                if(info.equals("true"))
-                                                                    tick.setPaid(true);
-                                                                else
-                                                                    tick.setPaid(false);
+                                                                tick.setIssuedby(info);
                                                                 info = "";
-                                                                System.out.println("Adding ticket "+tick.getColor()); 
-                                                                ticketList.add(tick);
-                                                                tick = new Ticket();
+                                                            }
+                                                            else
+                                                            {    
+                                                                if(counter == 12)
+                                                                {
+                                                                    counter = 0;
+                                                                    if(info.equals("true"))
+                                                                        tick.setPaid(true);
+                                                                    else
+                                                                        tick.setPaid(false);
+                                                                    info = "";
+                                                                    tick.setNumber(ticketnumber);
+                                                                    ticketnumber++;
+                                                                    ticketList.add(tick);
+                                                                    tick = new Ticket();
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -139,6 +137,7 @@ public class TicketModel
                         }
                     }
                 }
+                info += (char) charRead;
             }
         } catch (FileNotFoundException ex) 
         {
@@ -481,12 +480,10 @@ public class TicketModel
     
     public void storeTicket(Ticket lastTicket)
     {
-        //number, license, state, permitnumber, model, color, reason, date, time, location, issuedby, paid
         BufferedWriter bw = null;
 	FileWriter fw = null;
 	try {
-            String data = " This is new content";
-            File file = new File("hello.txt");
+            File file = new File("tickets.dat");
             // if file doesnt exists, then create it
             if (!file.exists()) 
             {
@@ -522,7 +519,7 @@ public class TicketModel
             System.out.println("Done");
         } catch (IOException e) 
         {
-                e.printStackTrace();
+            e.printStackTrace();
         } finally 
         {
             try 
@@ -534,7 +531,7 @@ public class TicketModel
                     fw.close();
             } catch (IOException ex) 
             {
-                    ex.printStackTrace();
+                ex.printStackTrace();
             }
         }     
     }   
