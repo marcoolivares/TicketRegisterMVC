@@ -49,7 +49,6 @@ public class TicketView extends GridPane
     private Button btn3 = new Button();
     private Button btn4 = new Button();
     private Button btn5 = new Button();
-    
     //for the payment info
     private TextArea paymentTA = new TextArea();
     

@@ -5,6 +5,17 @@
  */
 package ticket;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -15,6 +26,128 @@ public class TicketModel
 {
     private ArrayList<Ticket> ticketList = new ArrayList<>();
     private static int ticketnumber = 1;
+    DataOutputStream out;
+    
+    public TicketModel() throws IOException
+    {
+        //number, license, state, permitnumber, model, color, reason, date, time, location, issuedby, paid
+        try(
+            FileReader reader = new FileReader("hello.txt")
+        ){
+            int charRead = -1;
+            int counter = 0;
+            String info = "";
+            Ticket tick = new Ticket();
+            while ((charRead = reader.read()) != -1) 
+            {
+                info += (char) charRead;
+                if(charRead == 10)
+                {
+                    System.out.println("Se encontró salto de linea");
+                    counter++;
+                    if(counter == 2)
+                    {
+                        System.out.println("License info: "+info);
+                        tick.setLicense(info);
+                        info = "";
+                    }
+                    else
+                    {
+                        if(counter == 3)
+                        {
+                            tick.setState(info);
+                            info = "";
+                        }
+                        else
+                        {
+                            if(counter == 4)
+                            {
+                                tick.setPermitnumber(info);
+                                info = "";
+                            }
+                            else
+                            {
+                                if(counter == 5)
+                                {
+                                    tick.setModel(info);
+                                    info = "";
+                                }
+                                else
+                                {
+                                    if(counter == 6)
+                                    {
+                                        tick.setColor(info);
+                                        info = "";
+                                    }
+                                    else
+                                    {
+                                        if(counter == 7)
+                                        {
+                                            tick.setReason(info);
+                                            info = "";
+                                        }
+                                        else
+                                        {
+                                            if(counter == 8)
+                                            {
+                                                tick.setDate(info);
+                                                info = "";
+                                            }
+                                            else
+                                            {
+                                                if(counter == 9)
+                                                {
+                                                    tick.setTime(info);
+                                                    info = "";
+                                                }
+                                                else
+                                                {
+                                                    if(counter == 10)
+                                                    {
+                                                        tick.setLocation(info);
+                                                        info = "";
+                                                    }
+                                                    else
+                                                    {
+                                                        if(counter == 11)
+                                                        {
+                                                            tick.setIssuedby(info);
+                                                            info = "";
+                                                        }
+                                                        else
+                                                        {    
+                                                            if(counter == 12)
+                                                            {
+                                                                counter = 0;
+                                                                if(info.equals("true"))
+                                                                    tick.setPaid(true);
+                                                                else
+                                                                    tick.setPaid(false);
+                                                                info = "";
+                                                                System.out.println("Adding ticket "+tick.getColor()); 
+                                                                ticketList.add(tick);
+                                                                tick = new Ticket();
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (FileNotFoundException ex) 
+        {
+            System.err.println("File not found error: " + ex);
+        } catch (IOException ex) 
+        {
+            System.err.println("I/O error: " + ex);
+        }
+    }
     /**
      * Receives 10 strings which are the values of the ticket, creates a new Ticket object and
      * finally add the created ticket to the ArrayList.
@@ -61,6 +194,7 @@ public class TicketModel
                 + "www.tsc.edu/parking\n");
         t.setPaid(false);
         ticketList.add(t);
+        storeTicket(t);
     }
     
     /**
@@ -345,4 +479,63 @@ public class TicketModel
         return ticketList;
     }
     
+    public void storeTicket(Ticket lastTicket)
+    {
+        //number, license, state, permitnumber, model, color, reason, date, time, location, issuedby, paid
+        BufferedWriter bw = null;
+	FileWriter fw = null;
+	try {
+            String data = " This is new content";
+            File file = new File("hello.txt");
+            // if file doesnt exists, then create it
+            if (!file.exists()) 
+            {
+                    file.createNewFile();
+            }
+            // true = append file
+            fw = new FileWriter(file.getAbsoluteFile(), true);
+            bw = new BufferedWriter(fw);
+            bw.write(lastTicket.getNumber()+"");
+            bw.newLine();
+            bw.write(lastTicket.getLicense()+"");
+            bw.newLine();
+            bw.write(lastTicket.getState()+"");
+            bw.newLine();
+            bw.write(lastTicket.getPermitnumber()+"");
+            bw.newLine();
+            bw.write(lastTicket.getModel()+"");
+            bw.newLine();
+            bw.write(lastTicket.getColor()+"");
+            bw.newLine();
+            bw.write(lastTicket.getReason()+"");
+            bw.newLine();
+            bw.write(lastTicket.getDate()+"");
+            bw.newLine();
+            bw.write(lastTicket.getTime()+"");
+            bw.newLine();
+            bw.write(lastTicket.getLocation()+"");
+            bw.newLine();
+            bw.write(lastTicket.getIssuedby());
+            bw.newLine();
+            bw.write(lastTicket.getPaid()+"");
+            bw.newLine();
+            System.out.println("Done");
+        } catch (IOException e) 
+        {
+                e.printStackTrace();
+        } finally 
+        {
+            try 
+            {
+                if (bw != null)
+                    bw.close();
+
+                if (fw != null)
+                    fw.close();
+            } catch (IOException ex) 
+            {
+                    ex.printStackTrace();
+            }
+        }     
+    }   
 }
