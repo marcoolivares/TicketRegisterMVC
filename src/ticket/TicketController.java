@@ -34,6 +34,8 @@ public class TicketController
             @Override
             public void handle(ActionEvent event)
             {
+                int returnValue;
+                int number;
                 String license;
                 String state;
                 String permit;
@@ -45,6 +47,7 @@ public class TicketController
                 String location;
                 String issued;
                 
+                number = Integer.parseInt(ticketView.getNumberTF().getText());
                 license = ticketView.getLicenseTF().getText();
                 state = ticketView.getStateTF().getText();
                 permit = ticketView.getPermitTF().getText();
@@ -56,19 +59,26 @@ public class TicketController
                 location = ticketView.getLocationTF().getText();
                 issued = ticketView.getIssuedTF().getText();
                 
-                ticketModel.createTicket(license, state, permit, model, color, reason, date, time, location, issued);
+                returnValue = ticketModel.createTicket(number, license, state, permit, model, color, reason, date, time, location, issued);
 
-                ticketView.getFeedbackLabel().setText("Feedback information\nTicket has been created.");
-                ticketView.getNumberTF().clear();
-                ticketView.getLicenseTF().clear();
-                ticketView.getStateTF().clear();
-                ticketView.getPermitTF().clear();
-                ticketView.getModelTF().clear();
-                ticketView.getColorTF().clear();
-                ticketView.getDateTF().clear();
-                ticketView.getTimeTF().clear();
-                ticketView.getLocationTF().clear();
-                ticketView.getIssuedTF().clear();
+                if(returnValue == 1)
+                {
+                    ticketView.getFeedbackLabel().setText("Feedback information\nTicket has been created.");
+                    ticketView.getNumberTF().clear();
+                    ticketView.getLicenseTF().clear();
+                    ticketView.getStateTF().clear();
+                    ticketView.getPermitTF().clear();
+                    ticketView.getModelTF().clear();
+                    ticketView.getColorTF().clear();
+                    ticketView.getDateTF().clear();
+                    ticketView.getTimeTF().clear();
+                    ticketView.getLocationTF().clear();
+                    ticketView.getIssuedTF().clear();
+                }
+                else
+                {
+                    ticketView.getFeedbackLabel().setText("Feedback information\nError: Ticket with ID "+number+" already exists in database.");
+                }
             }
         } );
         ticketView.getBtn2().setOnAction(new EventHandler<ActionEvent>() {
@@ -103,6 +113,7 @@ public class TicketController
             @Override
             public void handle(ActionEvent event)
             {
+                ticketModel.closeConnection();
                 System.exit(0);
             }
         } );
@@ -114,7 +125,7 @@ public class TicketController
      */
     public void showInformation()
     {
-        ticketView.getNumberTF().setText(""+currentTicket);
+        ticketView.getNumberTF().setText(""+ticketModel.getCurrentTicketNumber(currentTicket));
         ticketView.getLicenseTF().setText(ticketModel.getCurrentTicketLicenseNumber(currentTicket));
         ticketView.getStateTF().setText(ticketModel.getCurrentState(currentTicket));
         ticketView.getPermitTF().setText(ticketModel.getCurrentPermitNumber(currentTicket));

@@ -4,14 +4,14 @@
  * and open the template in the editor.
  */
 package ticket;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,164 +19,52 @@ import java.util.ArrayList;
  */
 public class TicketModel
 {
-    private ArrayList<Ticket> ticketList = new ArrayList<>();
-    private static int ticketnumber = 1;
-    DataOutputStream out;
+    private Connection connection;
+    Statement statement;
+    ResultSet resultSet;
+    private String url = "jdbc:mysql://localhost:3306/citation";
+    private String query = "";
     
-    public TicketModel() throws IOException
+    private ArrayList<Ticket> ticketList = new ArrayList<>();
+    
+    public TicketModel()
     {
-        //number, license, state, permitnumber, model, color, reason, date, time, location, issuedby, paid
-        try(
-            FileReader reader = new FileReader("tickets.dat")
-        ){
-            int charRead = -1;
-            int counter = 0;
-            String info = "";
-            Ticket tick = new Ticket();
-            while ((charRead = reader.read()) != -1) 
-            {
-                if(charRead == 10)
-                {
-                    counter++;
-                    if(counter == 1)
-                        info = "";
-                    else
-                    {
-                        if(counter == 2)
-                        {
-                            tick.setLicense(info);
-                            info = "";
-                        }
-                        else
-                        {
-                            if(counter == 3)
-                            {
-                                tick.setState(info);
-                                info = "";
-                            }
-                            else
-                            {
-                                if(counter == 4)
-                                {
-                                    tick.setPermitnumber(info);
-                                    info = "";
-                                }
-                                else
-                                {
-                                    if(counter == 5)
-                                    {
-                                        tick.setModel(info);
-                                        info = "";
-                                    }
-                                    else
-                                    {
-                                        if(counter == 6)
-                                        {
-                                            tick.setColor(info);
-                                            info = "";
-                                        }
-                                        else
-                                        {
-                                            if(counter == 7)
-                                            {
-                                                tick.setReason(info.substring(1, info.length()-1));
-                                                info = "";
-                                            }
-                                            else
-                                            {
-                                                if(counter == 8)
-                                                {
-                                                    tick.setDate(info);
-                                                    info = "";
-                                                }
-                                                else
-                                                {
-                                                    if(counter == 9)
-                                                    {
-                                                        tick.setTime(info);
-                                                        info = "";
-                                                    }
-                                                    else
-                                                    {
-                                                        if(counter == 10)
-                                                        {
-                                                            tick.setLocation(info);
-                                                            info = "";
-                                                        }
-                                                        else
-                                                        {
-                                                            if(counter == 11)
-                                                            {
-                                                                tick.setIssuedby(info);
-                                                                info = "";
-                                                            }
-                                                            else
-                                                            {    
-                                                                if(counter == 12)
-                                                                {
-                                                                    counter = 0;
-                                                                    if(info.equals("true"))
-                                                                        tick.setPaid(true);
-                                                                    else
-                                                                        tick.setPaid(false);
-                                                                    info = "";
-                                                                    tick.setNumber(ticketnumber);
-                                                                    ticketnumber++;
-                                                                    ticketList.add(tick);
-                                                                    tick = new Ticket();
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                info += (char) charRead;
-            }
-        } catch (FileNotFoundException ex) 
-        {
-            System.err.println("File not found error: " + ex);
-        } catch (IOException ex) 
-        {
-            System.err.println("I/O error: " + ex);
-        }
+        //connecting to the database
+        getDatabaseConnection();
+        //loading the tickets from the database
+        loadTickets();
+        
     }
     /**
      * Receives 10 strings which are the values of the ticket, creates a new Ticket object and
      * finally add the created ticket to the ArrayList.
      * The default value for the "paid" variable is false
-     * @param a is the license number
-     * @param b is the state
-     * @param c is the permit number
-     * @param d is the model
-     * @param e is the color
-     * @param f is the reason
-     * @param g is the date
-     * @param h is the time
-     * @param i is the location 
-     * @param j is the name of the person who issued the ticket
+     * @param a is the ticket number and primary key
+     * @param b is the license number
+     * @param c is the state
+     * @param d is the permit number
+     * @param e is the model
+     * @param f is the color
+     * @param g is the reason
+     * @param h is the date
+     * @param i is the time
+     * @param j is the location 
+     * @param k is the name of the person who issued the ticket
      */
-    public void createTicket(String a, String b, String c, String d, String e, String f, String g, String h, String i, String j)
+    public int createTicket(int a, String b, String c, String d, String e, String f, String g, String h, String i, String j, String k)
     {
         Ticket t = new Ticket();
-        t.setNumber(ticketnumber);
-        ticketnumber++;
-        t.setLicense(a);
-        t.setState(b);
-        t.setPermitnumber(c);
-        t.setModel(d);
-        t.setColor(e);
-        t.setReason(f);
-        t.setDate(g);
-        t.setTime(h);
-        t.setLocation(i);
-        t.setIssuedby(j);
+        t.setNumber(a);
+        t.setLicense(b);
+        t.setState(c);
+        t.setPermitnumber(d);
+        t.setModel(e);
+        t.setColor(f);
+        t.setReason(g);
+        t.setDate(h);
+        t.setTime(i);
+        t.setLocation(j);
+        t.setIssuedby(k);
         t.setPaymentinfo("PAYMENTS\n"
                 + "Payments can be made at the following office:\n"
                 + "Business Office, Tandy 107\n"
@@ -192,8 +80,47 @@ public class TicketModel
                 + "For More Information on parking citations please visit:\n"
                 + "www.tsc.edu/parking\n");
         t.setPaid(false);
-        ticketList.add(t);
-        storeTicket(t);
+        
+        //verifying that the ticket we want to add doesn't have a duplicated primary key value
+        boolean add = true;
+        for(Ticket ticket : ticketList)
+        {
+            if(ticket.getNumber() == a)
+            {
+                
+                add = false;
+            }
+        }
+        if(add)
+        {
+            ticketList.add(t);
+            storeTicket(t);
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    
+    /**
+     * Returns the license number of the current ticket.
+     * if the value of the string is null, the method will return a "---" string
+     * @param currentTicket is the number of the ticket which system needs to get its license number
+     * @return 
+     */
+    public String getCurrentTicketNumber(int currentTicket)
+    {
+        int value = 1;
+        for(Ticket ticket : ticketList)
+        {
+            if(value == currentTicket)
+            {
+                return ""+ticket.getNumber();
+            }
+            value++;
+        }
+        return "";
     }
     
     /**
@@ -204,15 +131,17 @@ public class TicketModel
      */
     public String getCurrentTicketLicenseNumber(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getLicense().compareTo("")!=0)
                     return ticket.getLicense();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     }
@@ -225,15 +154,17 @@ public class TicketModel
      */
     public String getCurrentState(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getState().compareTo("")!=0)
                     return ticket.getState();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     }   
@@ -246,15 +177,17 @@ public class TicketModel
      */
     public String getCurrentPermitNumber(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getPermitnumber().compareTo("") != 0)
                     return ticket.getPermitnumber();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     }   
@@ -267,15 +200,17 @@ public class TicketModel
      */
     public String getCurrentModel(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getModel().compareTo("") != 0)
                     return ticket.getModel();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     }
@@ -288,15 +223,17 @@ public class TicketModel
      */
     public String getCurrentColor(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getColor().compareTo("")!=0)
                     return ticket.getColor();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     }  
@@ -309,15 +246,17 @@ public class TicketModel
      */
     public String getCurrentReason(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getReason().compareTo("")!=0)
                     return ticket.getReason();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     }  
@@ -330,15 +269,17 @@ public class TicketModel
      */
     public String getCurrentDate(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getDate().compareTo("")!=0)
                     return ticket.getDate();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     }   
@@ -351,15 +292,17 @@ public class TicketModel
      */
     public String getCurrentTime(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getTime().compareTo("")!=0)
                     return ticket.getTime();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     } 
@@ -372,15 +315,17 @@ public class TicketModel
      */
     public String getCurrentLocation(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getLocation().compareTo("")!=0)
                     return ticket.getLocation();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     }   
@@ -393,15 +338,17 @@ public class TicketModel
      */
     public String getCurrentIssuedBy(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getIssuedby().compareTo("")!=0)
                     return ticket.getIssuedby();
                 else
                     return "---";
             }
+            value++;
         }
         return "";
     }   
@@ -437,15 +384,17 @@ public class TicketModel
      */
     public String getCurrentPaidStatus(int currentTicket)
     {
+        int value = 1;
         for(Ticket ticket : ticketList)
         {
-            if(ticket.getNumber() == currentTicket)
+            if(value == currentTicket)
             {
                 if(ticket.getPaid())
                     return "paid";
                 else
                     return "unpaid";
             }
+            value++;
         }
         return "";
     }
@@ -458,14 +407,19 @@ public class TicketModel
     {
         for (int i = 0; i < ticketList.size(); i++) 
         {
-            if(ticketList.get(i).getNumber() == currentTicket)
+            if(i+1 == currentTicket)
             {
                 if(ticketList.get(i).getPaid())
+                {
                     ticketList.get(i).setPaid(false);
+                    updateTicket(ticketList.get(i).getNumber(), 0);
+                }
                 else
+                {
                     ticketList.get(i).setPaid(true);
+                    updateTicket(ticketList.get(i).getNumber(), 1);
+                }
             }
-
         }
     }
     
@@ -480,59 +434,135 @@ public class TicketModel
     
     public void storeTicket(Ticket lastTicket)
     {
-        BufferedWriter bw = null;
-	FileWriter fw = null;
-	try {
-            File file = new File("tickets.dat");
-            // if file doesnt exists, then create it
-            if (!file.exists()) 
-            {
-                    file.createNewFile();
-            }
-            // true = append file
-            fw = new FileWriter(file.getAbsoluteFile(), true);
-            bw = new BufferedWriter(fw);
-            bw.write(lastTicket.getNumber()+"");
-            bw.newLine();
-            bw.write(lastTicket.getLicense()+"");
-            bw.newLine();
-            bw.write(lastTicket.getState()+"");
-            bw.newLine();
-            bw.write(lastTicket.getPermitnumber()+"");
-            bw.newLine();
-            bw.write(lastTicket.getModel()+"");
-            bw.newLine();
-            bw.write(lastTicket.getColor()+"");
-            bw.newLine();
-            bw.write(lastTicket.getReason()+"");
-            bw.newLine();
-            bw.write(lastTicket.getDate()+"");
-            bw.newLine();
-            bw.write(lastTicket.getTime()+"");
-            bw.newLine();
-            bw.write(lastTicket.getLocation()+"");
-            bw.newLine();
-            bw.write(lastTicket.getIssuedby());
-            bw.newLine();
-            bw.write(lastTicket.getPaid()+"");
-            bw.newLine();
-            System.out.println("Done");
-        } catch (IOException e) 
+        query = "insert into ticket(ticketnumber, licensenumber, state, permitnumber, model, color, reason, date,";
+        query += "time, location, issuedby, paid) value ('"+lastTicket.getNumber()+"','"+lastTicket.getLicense();
+        query += "','"+lastTicket.getState()+"','"+lastTicket.getPermitnumber()+"','"+lastTicket.getModel()+"','";
+        query += lastTicket.getColor()+"','"+lastTicket.getReason()+"','"+lastTicket.getDate()+"','"+lastTicket.getTime()+"','";
+        query += lastTicket.getLocation()+"','"+lastTicket.getIssuedby()+"',"+lastTicket.getPaid()+")";
+        
+        try
         {
-            e.printStackTrace();
-        } finally 
+            //executing the query
+            statement.executeUpdate(query);
+        } catch (SQLException ex)
         {
-            try 
+            Logger.getLogger(TicketModel.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Error, query couldn't be executed");
+        }    
+    } 
+    
+    public void updateTicket(int ticketNumber, int paid)
+    {
+        query = "update ticket set paid = "+paid+" where ticketnumber = "+ticketNumber+"";
+        try
+        {
+            //executing the query
+            statement.executeUpdate(query);
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(TicketModel.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Error, query couldn't be executed");
+        }
+    }
+    
+    public void getDatabaseConnection()
+    {
+        try
+        {
+            connection = DriverManager.getConnection(url, "root", "root");
+            statement = connection.createStatement();
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(TicketModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void closeConnection()
+    {
+        try
+        {
+            connection.close();
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(TicketModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void loadTickets()
+    {
+        int ticketnumber;
+        String license;
+        String state;
+        String permitNumber;
+        String model;
+        String color;
+        String reason;
+        String date;
+        String time;
+        String location;
+        String issuedby;
+        boolean paid;
+        Ticket t;
+        try
+        {
+            query = "select * from ticket";
+            resultSet = statement.executeQuery(query);
+            while(resultSet.next())
             {
-                if (bw != null)
-                    bw.close();
-
-                if (fw != null)
-                    fw.close();
-            } catch (IOException ex) 
-            {
-                ex.printStackTrace();
+                ticketnumber = Integer.parseInt(""+resultSet.getObject(1));
+                license = ""+resultSet.getObject(2);
+                state = ""+resultSet.getObject(3);
+                permitNumber = ""+resultSet.getObject(4);
+                model = ""+resultSet.getObject(5);
+                color = ""+resultSet.getObject(6);
+                reason = ""+resultSet.getObject(7);
+                date = ""+resultSet.getObject(8);
+                time = ""+resultSet.getObject(9);
+                location = ""+resultSet.getObject(10);
+                issuedby = ""+resultSet.getObject(11);
+                
+                if(Integer.parseInt(""+resultSet.getObject(12))==1)
+                {
+                    paid = true;
+                }
+                else
+                {
+                    paid = false;
+                }
+                
+                //creating a new ticket
+                t = new Ticket();
+                t.setNumber(ticketnumber);
+                t.setLicense(license);
+                t.setState(state);
+                t.setPermitnumber(permitNumber);
+                t.setModel(model);
+                t.setColor(color);
+                t.setReason(reason);
+                t.setDate(date);
+                t.setTime(time);
+                t.setLocation(location);
+                t.setIssuedby(issuedby);
+                t.setPaymentinfo("PAYMENTS\n"
+                        + "Payments can be made at the following office:\n"
+                        + "Business Office, Tandy 107\n"
+                        + "Monday thru Friday 8:00 am - 5:00 pm\n"
+                        + "$25 per citation, other fees may apply\n"
+                        + "$100 for boot removal\n"
+                        + "Payment can be mailed to the following address:\n"
+                        + "TSC C/O Finance Dept\n"
+                        + "Attn: Parking Enforcement\n"
+                        + "80 Fort Brown\n"
+                        + "Brownsville, TX 78520\n"
+                        + "DO NOT MAIL IN CASH!\n"
+                        + "For More Information on parking citations please visit:\n"
+                        + "www.tsc.edu/parking\n");
+                t.setPaid(paid);
+                ticketList.add(t);
             }
-        }     
-    }   
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(TicketModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }

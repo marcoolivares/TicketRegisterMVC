@@ -29,7 +29,7 @@ public class TicketRegisterMVC extends Application
         StackPane root = new StackPane();
         root.getChildren().add(tv);
         
-        Scene scene = new Scene(root, 800, 800);
+        Scene scene = new Scene(root, 800, 600);
         
         primaryStage.setTitle("Ticket Register MVC");
         primaryStage.setScene(scene);
